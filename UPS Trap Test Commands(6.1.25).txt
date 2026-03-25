@@ -1,0 +1,36 @@
+sudo snmptrap -v 2c -c public 192.168.10.32 "" UPS-MIB::upsTrapOnBattery upsEstimatedMinutesRemaining i 1000 upsSecondsOnBattery i 250 upsConfigLowBattTime i 10
+sudo snmptrap -v 2c -c public 192.168.10.32 "" UPS-MIB::upsTrapTestCompleted upsEstimatedMinutesRemaining i 1000 upsSecondsOnBattery i 250 upsConfigLowBattTime i 10
+sudo snmptrap -v 2c -c public 192.168.10.32 "" UPS-MIB::upsTrapAlarmEntryAdded upsEstimatedMinutesRemaining i 1000 upsSecondsOnBattery i 250 upsConfigLowBattTime i 10
+sudo snmptrap -v 2c -c public 192.168.10.32 "" UPS-MIB::upsTrapAlarmEntryRemoved upsEstimatedMinutesRemaining i 1000 upsSecondsOnBattery i 250 upsConfigLowBattTime i 10
+
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 14 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmUpsOutputOff.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 4 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmDepletedBattery.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 5 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmTempBad.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 7 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmOutputBad.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 1 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmBatteryBad.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 2 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmOnBattery.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 3 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmLowBattery.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 6 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmInputBad.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 8 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmOutputOverload.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 9 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmOnBypass.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 11 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmOutputOffAsRequested.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 12 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmUpsOffAsRequested.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 13 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmChargerFailed.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 16 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmFanFailure.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 18 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmGeneralFault.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 20 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmCommunicationsLost.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 167 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::alarmTransferswitchSourceAFailure.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 168 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::alarmTransferswitchSourceBFailure.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 170 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::alarmTransferswitchRedundancyLost.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 171 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::alarmTransferswitchOutputOverload.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 3 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsTestResultsSummary.14
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 1 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsInputAuxBads.14
+
+
+
+
+
+
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 16 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsAlarmFanFailure.14   (wants to Notification type)
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 3 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsTestResultsSummary.14 (there is no data)
+snmptrap -v 1 -c public 192.168.10.32  UPS-MIB::upsMIB  "" 6 1 "" UPS-MIB::upsAlarmId.1 i 14 UPS-MIB::upsAlarmDescr.1 o UPS-MIB::upsInputAuxBads.14 (there is no data)
