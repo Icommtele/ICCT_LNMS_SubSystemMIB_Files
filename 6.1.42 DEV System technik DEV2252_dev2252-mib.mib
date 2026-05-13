@@ -1,0 +1,1202 @@
+-- ========================================================================
+--
+--  DEV Systemtechnik GmbH
+--
+-- ========================================================================
+--
+-- DEV MIB
+--
+-- Change History:
+-- 08-Nov-2017: initial version based on dev-switch.mib
+--
+-- ========================================================================
+
+DEV-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+
+    Integer32, NOTIFICATION-TYPE, OBJECT-TYPE, enterprises,
+    MODULE-IDENTITY
+        FROM SNMPv2-SMI;
+
+
+devMIB MODULE-IDENTITY
+    LAST-UPDATED "201711080000Z" -- Wed Nov 08 2017
+    ORGANIZATION "DEV Systemtechnik GmbH"
+    CONTACT-INFO "
+                  DEV Systemtechnik GmbH
+                  The Experts in RF Signal Handling
+                  Gruener Weg 4A
+                  D-61169 Friedberg
+                  Germany
+                  Phone: +49/(0)6031/6975100
+                  Email: <info@dev-systemtechnik.com>
+                  Url:   www.dev-systemtechnik.com
+                  "
+    DESCRIPTION
+        "This MIB module defines MIB objects for DEV Systemtechnik GmbH products."
+
+    REVISION      "201711080000Z"
+    DESCRIPTION   "initial version."
+        ::= { sysDevModules 1 } -- see sysDevModules defined below
+
+
+--  DEV Sys Admin Object Assignment
+--  DEV's nodes in the enterprises MIB ID is 21035
+--
+devSystemtechnik     OBJECT IDENTIFIER ::= { enterprises 21035 }
+sysDevModules        OBJECT IDENTIFIER ::= { devSystemtechnik 10 }
+devSysMIBConformance OBJECT IDENTIFIER ::= { devSystemtechnik 11 }
+
+-- Dev Sys MIB admin object assignments
+--
+dev                  OBJECT IDENTIFIER ::= { devSystemtechnik 42 }
+device               OBJECT IDENTIFIER ::= { dev 1 }
+application          OBJECT IDENTIFIER ::= { dev 2 }
+errorHandling        OBJECT IDENTIFIER ::= { dev 3 }
+devTraps             OBJECT IDENTIFIER ::= { dev 0 } -- compatibility with SMIv1 .0 traps
+                                                     -- see note below in notification definition
+-- ## .device ########################################
+
+model OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(8))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The (device) model name (e.g. DEV3465)."
+    ::= { device 1 }
+
+modelOption OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "If applicable, the (device) model option(s) (e.g. 1+1)."
+    ::= { device 2 }
+
+macAddress OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(18))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The individual MAC address of the (master-)controller of the device (e.g. 70-B3-D5-41-80-13)."
+    ::= { device 3 }
+
+firmwareRevision OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(32))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The device firmware revision (e.g. 32-0075-A.01)."
+    ::= { device 4 }
+
+mibRevision OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(32))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The revision of the MIB."
+    ::= { device 5 }
+
+-- ## .application ###################################################
+
+keyLock OBJECT-TYPE
+    SYNTAX      INTEGER { unlocked (1), locked (2), notApplicable (9999) }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "If applicable, the operation at the modules is (or can be) locked or unlocked."
+    ::= { application 1 }
+
+-- ** chassis **
+numberOfChassis OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of chassis."
+    ::= { application 2 }
+
+chassisTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ChassisEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table states the properties of each chassis being part of the device."
+    ::= { application 3 }
+
+chassisEntry OBJECT-TYPE
+    SYNTAX      ChassisEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One chassis in the table."
+    INDEX       { chassisIndex }
+    ::= { chassisTable 1 }
+
+ChassisEntry ::= SEQUENCE {
+    chassisIndex                 Integer32,
+    chassisModel                 OCTET STRING,
+    chassisModelOption           OCTET STRING,
+    chassisLabel                 OCTET STRING,
+    chassisAddress               Integer32,
+    chassisModules               OCTET STRING,
+    chassisStatus                INTEGER
+    }
+
+chassisIndex OBJECT-TYPE
+    SYNTAX      Integer32 (1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A unique value for each table entry ranging between 1 and the number of entries."
+    ::= { chassisEntry 1 }
+
+chassisModel OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(8))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The chassis model name (e.g. DEV3480)."
+    ::= { chassisEntry 2 }
+
+chassisModelOption OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "If applicable, the model option(s) of the chassis."
+    ::= { chassisEntry 3 }
+
+chassisLabel OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The chassis label."
+    ::= { chassisEntry 4 }
+
+chassisAddress OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The chassis address."
+    ::= { chassisEntry 5 }
+
+chassisModules OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "A comma separated string which is interpreted as integers
+         containing the indices of the modules in the module table belonging to the related chassis."
+    ::= { chassisEntry 6 }
+
+chassisStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The health status of the chassis."
+    ::= { chassisEntry 7 }
+
+-- ** modules **
+numberOfModules OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of modules."
+    ::= { application 4 }
+
+moduleTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ModuleEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table states the properties of each module being part of the device."
+    ::= { application 5 }
+
+moduleEntry OBJECT-TYPE
+    SYNTAX      ModuleEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One module in the table."
+    INDEX       { moduleIndex }
+    ::= { moduleTable 1 }
+
+ModuleEntry ::= SEQUENCE {
+    moduleIndex                  Integer32,
+    moduleModel                  OCTET STRING,
+    moduleModelOption            OCTET STRING,
+    moduleLabel                  OCTET STRING,
+    moduleChassis                Integer32,
+    moduleSlot                   Integer32,
+    modulePorts                  OCTET STRING,
+    moduleStatus                 INTEGER
+    }
+
+moduleIndex OBJECT-TYPE
+    SYNTAX      Integer32 (1..512)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A unique value for each table entry ranging between 1 and the number of entries."
+    ::= { moduleEntry 1 }
+
+moduleModel OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(8))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The module model name (e.g. DEV3501)."
+    ::= { moduleEntry 2 }
+
+moduleModelOption OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "If applicable, the model option(s) of the module."
+    ::= { moduleEntry 3 }
+
+moduleLabel OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The module label."
+    ::= { moduleEntry 4 }
+
+moduleChassis OBJECT-TYPE
+    SYNTAX      Integer32 (1..16)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The index of the chassis in the chassis table in which the module is installed."
+    ::= { moduleEntry 5 }
+
+moduleSlot OBJECT-TYPE
+    SYNTAX      Integer32 (1..64)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The slot location of the module within the chassis."
+    ::= { moduleEntry 6 }
+
+modulePorts OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "A comma separated string which is interpreted as integers
+         containing the indices of the ports in the port table belonging to the related module."
+    ::= { moduleEntry 7 }
+
+moduleStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The health status of the module."
+    ::= { moduleEntry 8 }
+
+
+-- ** ports **
+numberOfPorts OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of externally accessible ports with special properties."
+    ::= { application 6 }
+
+portTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF PortEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table contains the special features and settings of each port."
+    ::= { application 7 }
+
+portEntry OBJECT-TYPE
+    SYNTAX      PortEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One port in the table."
+    INDEX       { portIndex }
+    ::= { portTable 1 }
+
+PortEntry ::= SEQUENCE {
+    portIndex                    Integer32,
+    portType                     Integer32,
+    portLabel                    OCTET STRING,
+    portModule                   Integer32,
+    portStatus                   INTEGER,
+    portEnable                   INTEGER,
+    portHasRfLevel               INTEGER,
+    portRfLevelStatus            INTEGER,
+    portRfLevel                  Integer32,
+    portRfLimit                  Integer32,
+    portHasLnbPwr                INTEGER,
+    portLnbPwrStatus             INTEGER,
+    portLnbPwrMode               INTEGER,
+    portLnbPwrCurrent            Integer32,
+    portLnbPwrLimitLo            Integer32,
+    portLnbPwrLimitHi            Integer32,
+    portHasGain                  INTEGER,
+    portGainMode                 INTEGER,
+    portManualGain               Integer32,
+    portAutomaticGain            Integer32,
+    portHasSlope                 INTEGER,
+    portSlope                    Integer32,
+    portHasOptRx                 INTEGER,
+    portOptRxStatus              INTEGER,
+    portOptRxLevel               Integer32,
+    portOptRxLimit               Integer32,
+    portHasOptTx                 INTEGER,
+    portOptTxStatus              INTEGER,
+    portOptTxNominalPower        Integer32,
+	portOptTxOmiLevel            INTEGER,
+    portDwdmChannelNumber        Integer32,
+    portHasEdfa                  INTEGER,
+    portEdfaMode                 INTEGER,
+    portEdfaManualGain           Integer32,
+    portEdfaOutputPower          Integer32,
+    portEdfaOutputPowerSetpoint  Integer32,
+    portEdfaInputPower           Integer32,
+    portEdfaInputPowerLimit      Integer32
+}
+
+portIndex OBJECT-TYPE
+    SYNTAX      Integer32 (1..2048)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A unique value for each table entry ranging between 1 and the number of entries."
+    ::= { portEntry 1 }
+
+portType OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The functionality of the port, the definition is application-specific."
+    ::= { portEntry 2 }
+
+portLabel OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The port label."
+    ::= { portEntry 3 }
+
+portModule OBJECT-TYPE
+    SYNTAX      Integer32 (1..512)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The index of the module in the module table to which the port belongs to."
+    ::= { portEntry 4 }
+
+portStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The health status of the port."
+    ::= { portEntry 5 }
+
+portEnable OBJECT-TYPE
+    SYNTAX      INTEGER {disabled (1), enabled (2)}
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Error messages possibly caused by the port are (can be) enabled or disabled."
+    ::= { portEntry 6 }
+
+
+portHasRfLevel OBJECT-TYPE
+    SYNTAX      INTEGER {yes (1), no (2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The indication whether RF level information is provided or not."
+    ::= { portEntry 7 }
+
+portRfLevelStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The status of the RF level monitoring."
+    ::= { portEntry 8 }
+
+portRfLevel OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The measured RF level in [dBm/10].
+         '9999' means not available or not present."
+    ::= { portEntry 9 }
+
+portRfLimit OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The RF threshold level in [dBm/10].
+         '9999' means not available or not present."
+    ::= { portEntry 10 }
+
+portHasLnbPwr OBJECT-TYPE
+    SYNTAX      INTEGER {yes (1), no (2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The indication whether LNB power is provided or not."
+    ::= { portEntry 11 }
+
+portLnbPwrStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The status of the LNB current monitoring."
+    ::= { portEntry 12 }
+
+portLnbPwrMode OBJECT-TYPE
+    SYNTAX      INTEGER {off (1), vertLow (2), horLow (3),
+					vertHigh (4), horHigh (5), notApplicable (9999)}
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The LNB power supply state can be read or set."
+    ::= { portEntry 13 }
+
+portLnbPwrCurrent OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The measured current in [mA/10].
+         '9999' means not available or not present."
+    ::= { portEntry 14 }
+
+portLnbPwrLimitLo OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The lower limit of the current monitoring interval in [mA/10].
+         '9999' means not available or not present."
+    ::= { portEntry 15 }
+
+portLnbPwrLimitHi OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The upper limit of the current monitoring interval in [mA/10].
+         '9999' means not available or not present."
+    ::= { portEntry 16 }
+
+portHasGain OBJECT-TYPE
+    SYNTAX      INTEGER {yes (1), no (2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The indication whether gain control is provided or not."
+    ::= { portEntry 17 }
+
+portGainMode OBJECT-TYPE
+    SYNTAX      INTEGER {manual (1), auto (2), omi (3), notApplicable (9999)}
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "If applicable, the gain mode can be read or set."
+    ::= { portEntry 18 }
+
+portManualGain OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The manual gain control value (unit is application-specific, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 19 }
+
+portAutomaticGain OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The automatic gain control value (unit is application-specific, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 20 }
+
+portHasSlope OBJECT-TYPE
+    SYNTAX      INTEGER {yes (1), no (2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The indication whether slope control is provided or not."
+    ::= { portEntry 21 }
+
+portSlope OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The slope setting in [dB/10].
+         '9999' means not available or not present."
+    ::= { portEntry 22 }
+
+portHasOptRx OBJECT-TYPE
+    SYNTAX      INTEGER {yes (1), no (2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The indication whether optical Rx properties are provided or not."
+    ::= { portEntry 23 }
+
+portOptRxStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The Rx light detection status."
+    ::= { portEntry 24 }
+
+portOptRxLevel OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The measured optical Rx level (without units, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 25 }
+
+portOptRxLimit OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The optical Rx threshold level (without units, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 26 }
+
+portHasOptTx OBJECT-TYPE
+    SYNTAX      INTEGER {yes (1), no (2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The indication whether optical Tx properties are provided or not."
+    ::= { portEntry 27 }
+
+portOptTxStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The Tx laser light detection status."
+    ::= { portEntry 28 }
+
+portOptTxNominalPower OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The nominal optical Tx power (without units, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 29 }
+
+portOptTxOmiLevel OBJECT-TYPE
+    SYNTAX      INTEGER {tooLow (1), low (2), good (3), high (4), tooHigh (5), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The TX OMI level status.
+         '9999' means not available or not present."
+    ::= { portEntry 30 }
+
+portDwdmChannelNumber OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The channel number of an optical DWDM Tx port.
+         '9999' means not available or not present."
+    ::= { portEntry 31 }
+
+portHasEdfa OBJECT-TYPE
+    SYNTAX      INTEGER {yes (1), no (2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The indication whether EDFA properties are provided or not."
+    ::= { portEntry 32 }
+
+portEdfaMode OBJECT-TYPE
+    SYNTAX      INTEGER {manual (1), auto (2), mute (3), notApplicable (9999)}
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "If applicable, the EDFA operation mode can be read or set."
+    ::= { portEntry 33 }
+
+portEdfaManualGain OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The EDFA manual gain control value (unit is application-specific, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 34 }
+
+portEdfaOutputPower OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The measured EDFA output power (unit is application-specific, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 35 }
+
+portEdfaOutputPowerSetpoint OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The set point for the automatic output power control of EDFA amplifier ports
+         (unit is application-specific e.g.: without units, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 36 }
+
+portEdfaInputPower OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The measured EDFA input power (unit is application-specific, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 37 }
+
+portEdfaInputPowerLimit OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The EDFA input power threshold level
+         (unit is application-specific e.g.: without units, in tenths).
+         '9999' means not available or not present."
+    ::= { portEntry 38 }
+
+-- ** switch units **
+numberOfSwitchUnits OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of switch units."
+    ::= { application 8 }
+
+switchUnitTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SwitchUnitEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table contains the switch unit assignments and enables the switching."
+    ::= { application 9 }
+
+switchUnitEntry OBJECT-TYPE
+    SYNTAX      SwitchUnitEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One switch unit in the table."
+    INDEX       { switchUnitIndex }
+    ::= { switchUnitTable 1 }
+
+
+SwitchUnitEntry ::= SEQUENCE {
+    switchUnitIndex              Integer32,
+    switchUnitLabel              OCTET STRING,
+    switchUnitSize               Integer32,
+    switchUnitPorts              OCTET STRING,
+    switchUnitStatus             INTEGER,
+    switchUnitControlMode        INTEGER,
+    switchUnitPosition           Integer32
+}
+
+switchUnitIndex OBJECT-TYPE
+    SYNTAX      Integer32 (1..128)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A unique value for each table entry ranging between 1 and the number of entries."
+    ::= { switchUnitEntry 1 }
+
+switchUnitLabel OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The switch unit label."
+    ::= { switchUnitEntry 2 }
+
+switchUnitSize OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The size of the switch unit."
+    ::= { switchUnitEntry 3 }
+
+switchUnitPorts OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "A comma separated string which is interpreted as integers
+         containing the indices of the ports in the port table being member of the switch unit."
+    ::= { switchUnitEntry 4 }
+
+switchUnitStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The health status of the switch unit."
+    ::= { switchUnitEntry 5 }
+
+switchUnitControlMode OBJECT-TYPE
+    SYNTAX      INTEGER {manual (1), auto (2), switchBack (3),
+                         mainBackupSwap (4), notApplicable (9999)}
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "If applicable, the control mode of the switch unit can be read or set."
+    ::= { switchUnitEntry 6 }
+
+switchUnitPosition OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The switching status of the related switch unit;
+         the switching state can be altered by writing to .switchUnitPosition."
+    ::= { switchUnitEntry 7 }
+
+-- ** switch groups **
+numberOfSwitchGroups OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of switch groups."
+    ::= { application 10 }
+
+switchGroupTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SwitchGroupEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table contains the assignments of switch units
+         to switch groups used for synchronous switching."
+    ::= { application 11 }
+
+switchGroupEntry OBJECT-TYPE
+    SYNTAX      SwitchGroupEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One switch group in the table."
+    INDEX       { switchGroupIndex }
+    ::= { switchGroupTable 1 }
+
+SwitchGroupEntry ::= SEQUENCE {
+    switchGroupIndex             Integer32,
+    switchGroupLabel             OCTET STRING,
+    switchGroupUnits             OCTET STRING,
+    switchGroupStatus            INTEGER
+}
+
+switchGroupIndex OBJECT-TYPE
+    SYNTAX      Integer32 (1..32)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A unique value for each table entry ranging between 1 and the number of entries."
+    ::= { switchGroupEntry 1 }
+
+switchGroupLabel OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The switch group label."
+    ::= { switchGroupEntry 2 }
+
+switchGroupUnits OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "A comma separated string which is interpreted as integers
+         containing the indices of the switch units in the switch unit table
+         being member of the switch group."
+    ::= { switchGroupEntry 3 }
+
+switchGroupStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok (1), notOk (2), notApplicable (9999)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The health status of the switch group."
+    ::= { switchGroupEntry 4 }
+
+--- ## .errorHandling  #################################################
+trapEnableMask OBJECT-TYPE
+    SYNTAX      BITS {unused0(0), unused1(1), unused2(2), unused3(3),
+                      unused4(4), error(5), errortext(6), coldstart(7)}
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The trap enable mask: A trap is enabled if the corresponding bit is set."
+    ::= { errorHandling 1 }
+
+errorEnableMask OBJECT-TYPE
+    SYNTAX      Integer32 (0..65535)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The error enable mask: All bits 1: all errors are enabled;
+         errors are grouped into types; each error type can be masked
+         out with the corresponding bit set to 0."
+    ::= { errorHandling 2 }
+
+activeErrorTypes OBJECT-TYPE
+    SYNTAX      Integer32 (0..65535)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The indication whether an error type is pending.
+         An error type is pending if the corresponding bit is set."
+    ::= { errorHandling 3 }
+
+-- ** errors **
+numberOfErrors OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of errors."
+    ::= { errorHandling 4 }
+
+errorTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ErrorEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table states the details of detected errors."
+    ::= { errorHandling 5 }
+
+errorEntry OBJECT-TYPE
+    SYNTAX      ErrorEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One error in the table."
+    INDEX       { errorIndex }
+    ::= { errorTable 1 }
+
+ErrorEntry ::= SEQUENCE {
+    errorIndex                   Integer32,
+    errorNr                      Integer32,
+    errorChassis                 Integer32,
+    errorSlot                    Integer32,
+    errorPort                    Integer32,
+    errorCount                   Integer32,
+    errorDateTime                Integer32,
+    errorPending                 INTEGER,
+    errorAcknowledge             INTEGER
+}
+
+errorIndex OBJECT-TYPE
+    SYNTAX      Integer32 (1..512)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A unique value for each table entry ranging between 1 and the number of entries."
+    ::= { errorEntry 1 }
+
+errorNr OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The index of the error code in the error code table."
+    ::= { errorEntry 2 }
+
+errorChassis OBJECT-TYPE
+    SYNTAX      Integer32 (1..16)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The index of the chassis in the chassis table in which the module/port is installed."
+    ::= { errorEntry 3 }
+
+errorSlot OBJECT-TYPE
+    SYNTAX      Integer32 (1..64)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The slot location of the module/port within the chassis."
+    ::= { errorEntry 4 }
+
+errorPort OBJECT-TYPE
+    SYNTAX      Integer32 (1..2048)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The index of the port in the port table."
+    ::= { errorEntry 5 }
+
+errorCount OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of occurrences of the error."
+    ::= { errorEntry 6 }
+
+errorDateTime OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The last occurrence of the error
+         (Unix time stamp, seconds since 01-Jan-1970 00:00:00 UTC)."
+    ::= { errorEntry 7 }
+
+errorPending OBJECT-TYPE
+    SYNTAX      INTEGER {gone(1), pending(2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The last occurrence of the error is pending (1) / gone (2)."
+    ::= { errorEntry 8 }
+
+errorAcknowledge OBJECT-TYPE
+    SYNTAX      INTEGER {notAcknowledged(1), acknowledged(2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The last occurrence of the error is not acknowledged (1) / acknowledged (2)."
+    ::= { errorEntry 9 }
+
+-- ** error codes **
+numberOfErrorCodes OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of error codes."
+    ::= { errorHandling 6 }
+
+errorCodeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ErrorCodeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table states the error codes and the related text messages."
+    ::= { errorHandling 7 }
+
+errorCodeEntry OBJECT-TYPE
+    SYNTAX      ErrorCodeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One error code in the table."
+    INDEX       { errorCodeIndex }
+    ::= { errorCodeTable 1 }
+
+ErrorCodeEntry ::= SEQUENCE {
+    errorCodeIndex               Integer32,
+    errorCodeNr                  Integer32,
+    errorCodeText                OCTET STRING
+}
+
+errorCodeIndex OBJECT-TYPE
+    SYNTAX      Integer32 (1..256)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A unique value for each table entry ranging between 1 and the number of entries."
+    ::= { errorCodeEntry 1 }
+
+errorCodeNr OBJECT-TYPE
+    SYNTAX      Integer32 (0..65535)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The error code consists of the error type and of the specific error type sub-group."
+    ::= { errorCodeEntry 2 }
+
+errorCodeText OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The text message associated to the error code."
+    ::= { errorCodeEntry 3 }
+
+--- ####################################################################
+
+-- Dev Sys - Traps/Notification
+--
+-- SMIv1/V2 Note: to retain compatibility with SMIv1 trap definition
+-- the "parental" .0 was preserved by using "devTraps" defined above
+-- devTraps  OBJECT IDENTIFIER ::= { dev 0 }
+--
+-- This makes sure that TRAP OID defined in previous SMIv1 includes .0
+-- Example: trapAlarm oid: 1,3,6,1,4,1,21035,42,0,4.
+
+trapAlarm NOTIFICATION-TYPE
+    OBJECTS     { errorCodeText, errorCodeNr, errorChassis, errorSlot, errorPort, errorPending}
+    STATUS      current
+    DESCRIPTION
+        "This trap is sent, if an error appears.
+         A descriptive text plus localization information is appended."
+    ::= { devTraps 3 } -- equivalent to = { dev 0 3 }
+
+
+-- Conformance Information ******************************************
+
+devMIBCompliances OBJECT IDENTIFIER ::= {devSysMIBConformance 1}
+devMIBGroups      OBJECT IDENTIFIER ::= {devSysMIBConformance 2}
+
+-- Compliance Statements
+
+devMIBCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION "The compliance statement for entities which
+                 implement the DEV Systemtechnik devMIB.
+                "
+
+    MODULE    -- this module
+        MANDATORY-GROUPS { devMIBGroups, devMIBGroup, devTrapGroup }
+
+    ::= { devMIBCompliances 1 }
+
+devMIBGroup OBJECT-GROUP
+    OBJECTS {
+     model,
+       modelOption,
+       macAddress,
+       firmwareRevision,
+       mibRevision,
+     keyLock,
+       numberOfChassis,
+        chassisModel,
+        chassisModelOption,
+        chassisLabel,
+        chassisAddress,
+        chassisModules,
+        chassisStatus,
+       numberOfModules,
+        moduleModel,
+        moduleModelOption,
+        moduleLabel,
+        moduleChassis,
+        moduleSlot,
+        modulePorts,
+        moduleStatus,
+       numberOfPorts,
+        portType,
+        portLabel,
+        portModule,
+        portStatus,
+        portEnable,
+        portHasRfLevel,
+        portRfLevelStatus,
+        portRfLevel,
+        portRfLimit,
+        portHasLnbPwr,
+        portLnbPwrStatus,
+        portLnbPwrMode,
+        portLnbPwrCurrent,
+        portLnbPwrLimitLo,
+        portLnbPwrLimitHi,
+        portHasGain,
+        portGainMode,
+        portManualGain,
+        portAutomaticGain,
+        portHasSlope,
+        portSlope,
+        portHasOptRx,
+        portOptRxStatus,
+        portOptRxLevel,
+        portOptRxLimit,
+        portHasOptTx,
+        portOptTxStatus,
+        portOptTxNominalPower,
+        portOptTxOmiLevel,
+        portDwdmChannelNumber,
+        portHasEdfa,
+        portEdfaMode,
+        portEdfaManualGain,
+        portEdfaOutputPower,
+        portEdfaOutputPowerSetpoint,
+        portEdfaInputPower,
+        portEdfaInputPowerLimit,
+       numberOfSwitchUnits,
+        switchUnitLabel,
+        switchUnitSize,
+        switchUnitPorts,
+        switchUnitStatus,
+        switchUnitControlMode,
+        switchUnitPosition,
+       numberOfSwitchGroups,
+        switchGroupLabel,
+        switchGroupUnits,
+        switchGroupStatus,
+     trapEnableMask,
+       errorEnableMask,
+       activeErrorTypes,
+       numberOfErrors,
+        errorNr,
+        errorChassis,
+        errorSlot,
+        errorPort,
+        errorCount,
+        errorDateTime,
+        errorPending,
+        errorAcknowledge,
+       numberOfErrorCodes,
+        errorCodeNr,
+        errorCodeText
+    }
+    STATUS       current
+    DESCRIPTION "A collection of devSys MIB objects."
+    ::= { devMIBGroups 1 }
+
+devTrapGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+     trapAlarm
+    }
+    STATUS       current
+    DESCRIPTION "A collection of devSys trap objects."
+    ::= { devMIBGroups 2 }
+
+
+
+END -- end of DEV-MIB DEFINITIONS.
