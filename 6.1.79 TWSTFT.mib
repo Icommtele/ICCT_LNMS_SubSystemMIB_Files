@@ -1,0 +1,517 @@
+-- This MIB is for A14PGADTWTT
+--
+--defines M7DEMO-MIB for sample SNMP agent extension
+--Contents:	Global Registration Module
+--		accord 41 OIDs - Enterprise 7777
+--Revision:	1.0 
+--Date:		02 MAY, 2017
+--Developed By: Accord Software
+--              
+--              
+
+--
+--Copyright (c) 2017 Accord Inc.
+--
+
+DEMOSNMP-MIB DEFINITIONS ::= BEGIN
+
+
+IMPORTS
+	enterprises, IpAddress, Counter, TimeTicks
+		FROM RFC1155-SMI
+	OBJECT-TYPE
+		FROM RFC-1212
+	DisplayString
+		FROM RFC-1213;
+	ucdavis
+	        FROM UCD-SNMP-MIB;
+	        
+        
+
+
+accord        			OBJECT IDENTIFIER ::= { enterprises 7777 }
+products      			OBJECT IDENTIFIER ::= { accord 1 }
+twstft       			OBJECT IDENTIFIER ::= { products 2 }
+Twstft_Configuration     	OBJECT IDENTIFIER ::= { twstft 1 }
+Twstft_LinkStatus		OBJECT IDENTIFIER ::= { twstft 2 }
+Oscillator_Status		OBJECT IDENTIFIER ::= { twstft 3 }
+Modem_Status                    OBJECT IDENTIFIER ::= { twstft 4 }
+Modem_Location                  OBJECT IDENTIFIER ::= { twstft 5 }
+Gnss_Rx_Status                  OBJECT IDENTIFIER ::= { twstft 6 }
+LAN_Port_1                      OBJECT IDENTIFIER ::= { twstft 7 }
+LAN_Port_2                      OBJECT IDENTIFIER ::= { twstft 8 }
+--Twstft_GNSS                     OBJECT IDENTIFIER ::= { twstft 9 }
+
+Notifications OBJECT IDENTIFIER ::= { twstft 8 }
+
+--netSnmpExampleNotificationPrefix  OBJECT IDENTIFIER
+                                  ::= { netSnmpExampleNotifications 0 }
+--netSnmpExampleNotificationObjects OBJECT IDENTIFIER
+--                                  ::= { netSnmpExampleNotifications 2 }
+
+
+--------------------------------------------------------------------------------------------------
+Mode OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT MODE:
+	0  :   SLAVE
+	1  :   MASTER "
+::= { Twstft_Configuration 1 }
+
+Station_ID OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Station ID"
+::= { Twstft_Configuration 2 }
+
+TimeReference OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT TIME REFERENCE:
+	0   : Internal Reciever
+	1   : External Reciever
+	2   : NTP Server
+	3   : Manual Configuration
+	4   : Master Station"
+::= { Twstft_Configuration 3 }
+
+Time_Initilization_Status OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Time Initialization Status:
+	0   : Not Initialized
+	1   : Initialized
+	2   : Initialization in progress"
+::= { Twstft_Configuration 4 }
+
+
+--------------------------------------------------------------------------------------------------
+Link_Status_Tx OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Transmit Link Status:
+	0  :   OFF
+	1  :   ON "
+::= { Twstft_LinkStatus 1 }
+
+CH_1_Remote_Station_ID OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Remote Station ID of 1st channel"
+	
+::= { Twstft_LinkStatus 2 }
+
+CH_2_Remote_Station_ID  OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Remote Station ID of 2nd channel"
+	
+::= { Twstft_LinkStatus 3 }
+
+
+--------------------------------------------------------------------------------------------------
+Osc_Status OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Oscillator Status:
+	0  :   Internal
+	1  :   External "
+::= { Oscillator_Status 1 }
+
+Oscillator_Lock_Status OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Internal Oscillator Status:
+	0  :  Unlocked
+	1  :  Locked "
+::= { Oscillator_Status 2 }
+
+
+--------------------------------------------------------------------------------------------------
+Synchronization_Status OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Modem Status:
+	0	: Synchronized
+	1	: Not Synchronized
+	2	: Holdover"
+::= { Modem_Status 1 }
+
+Frequency_Accuracy OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Frequency Accuracy"
+::= { Modem_Status 2 }
+
+Avg_Time_Offset OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Average Time Offset in ns"
+::= { Modem_Status 3 }
+
+Last_Sync_Time OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Last Synchronized Time"
+::= { Modem_Status 4 }
+
+Ch_1_C_No OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"C_NO in dB-Hz"
+::= { Modem_Status 5 }
+
+Ch_2_C_No OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"C_NO in dB-Hz"
+::= { Modem_Status 6 }
+
+Tx_Power_Level OBJECT-TYPE
+	   SYNTAX  	DisplayString
+	   ACCESS	Read-only
+	   STATUS	mandatory
+       	DESCRIPTION	"Transmit Power Level in dBm"
+	
+::= { Modem_Status 7 }
+
+Modem_Time  OBJECT-TYPE
+        SYNTAX  	DisplayString
+        ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Modem Time in UTC"
+	
+::= { Modem_Status 8 }	
+
+Modem_Date  OBJECT-TYPE
+        SYNTAX  	DisplayString
+        ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Modem Date in UTC"
+	
+::= { Modem_Status 9 }	
+
+
+--------------------------------------------------------------------------------------------------
+
+Lattitude OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Modem position "
+	
+::= { Modem_Location 1 }
+
+Longitude  OBJECT-TYPE
+        SYNTAX  	DisplayString
+        ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Modem position "
+	
+::= { Modem_Location 2 }	
+
+Altitude  OBJECT-TYPE
+        SYNTAX  	DisplayString
+        ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Modem position "
+	
+::= { Modem_Location 3 }	
+
+
+--------------------------------------------------------------------------------------------------
+Pos_Fix_Status OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"TWSTFT Position Fix Status:
+	0  :   Not Available
+	1  :   Available "
+::= { Gnss_Rx_Status 1 }
+
+TSPE OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Time Since Position Estimation"
+	
+::= { Gnss_Rx_Status 2 }
+
+TTFF OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Time To First Fix"
+	
+::= { Gnss_Rx_Status 3 }
+	
+
+
+--------------------------------------------------------------------------------------------------
+ 
+
+
+Port1_IPAddress OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"IP Address of LAN PORT-1"
+::= { LAN_Port_1 1 }
+
+Port1_Subnet_mask OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Subnet Mask of LAN PORT-1"
+::= { LAN_Port_1 2 }
+
+Port1_Gateway OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Gateway of LAN PORT -1"
+::= { LAN_Port_1 3 }
+
+Port1_DHCP OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"DHCP status of LAN PORT -1
+	0   : Disabled
+	1   : Enabled"
+::= { LAN_Port_1 4 }
+
+--------------------------------------------------------------------------------------------------
+ 
+
+
+Port2_IPAddress OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"IP Address of LAN PORT-2"
+::= { LAN_Port_2 1 }
+
+Port2_Subnet_mask OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Subnet Mask of LAN PORT-2"
+::= { LAN_Port_2 2 }
+
+Port2_Gateway OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"Gateway of LAN PORT -2"
+::= { LAN_Port_2 3 }
+
+Port2_DHCP OBJECT-TYPE
+	SYNTAX  	DisplayString
+	ACCESS		Read-only
+	STATUS		mandatory
+	DESCRIPTION	"DHCP status of LAN PORT -2
+	0   : Disabled
+	1   : Enabled"
+::= { LAN_Port_2 4 }
+
+NTP_Status OBJECT-TYPE
+	   SYNTAX  	DisplayString
+	   ACCESS	Read-only
+	   STATUS	mandatory
+       	DESCRIPTION	"NTP status 
+	0   : Disabled
+	1   : Enabled"
+::= { LAN_Port_2 5 }
+
+PTP_Status OBJECT-TYPE
+	   SYNTAX  	DisplayString
+	   ACCESS	Read-only
+	   STATUS	mandatory
+       	DESCRIPTION	"PTP status 
+	0   : Disabled
+	1   : Enabled"
+::= { LAN_Port_2 6 }
+
+
+--------------------------------------------------------------------------------------------------
+
+--Frequency_Accuracy OBJECT-TYPE
+--	SYNTAX  	DisplayString
+--	ACCESS		Read-only
+--	STATUS		mandatory
+--	DESCRIPTION	"Frequency Accuracy"
+--::= { Twstft_GNSS 1 }
+
+--Avg_Time_Offset OBJECT-TYPE
+--	SYNTAX  	DisplayString
+--	ACCESS		Read-only
+--	STATUS		mandatory
+--	DESCRIPTION	"Average Time Offset in ns"
+--::= { Twstft_GNSS 2 }
+
+--Last_Sync_Time OBJECT-TYPE
+--	SYNTAX  	DisplayString
+--	ACCESS		Read-only
+--	STATUS		mandatory
+--	DESCRIPTION	"Last Synchronized Time"
+--::= { Twstft_GNSS 3 }
+
+--Ch_1_C_No OBJECT-TYPE
+--	SYNTAX  	DisplayString
+--	ACCESS		Read-only
+--	STATUS		mandatory
+--	DESCRIPTION	"C_NO in dB-Hz"
+--::= { Twstft_GNSS 4 }
+
+--Ch_2_C_No OBJECT-TYPE
+--	SYNTAX  	DisplayString
+--	ACCESS		Read-only
+--	STATUS		mandatory
+--	DESCRIPTION	"C_NO in dB-Hz"
+--::= { Twstft_GNSS 5 }
+
+--Tx_Power_Level OBJECT-TYPE
+--	   SYNTAX  	DisplayString
+--	   ACCESS	Read-only
+--	   STATUS	mandatory
+--       	DESCRIPTION	"Transmit Power Level in dBm"
+	
+--::= { Twstft_GNSS 6 }
+
+
+
+------------SNMPV2-NOTIFICATIONS-----------------------------------
+
+
+
+
+TwstftGnssPosFix_Available NOTIFICATION-TYPE
+    OBJECTS     { GnssPos }
+    STATUS      current
+    DESCRIPTION
+        "GNSS Position Fix Available"
+::= { Notifications 1 }
+
+TwstftGnssPosFix_NotAvailable NOTIFICATION-TYPE
+    OBJECTS     { GnssPos }
+    STATUS      current
+    DESCRIPTION
+        "GNSS Position Fix Not Available"
+         
+::= { Notifications 2 }
+
+
+TwstftOscLock_Available NOTIFICATION-TYPE
+	OBJECTS     { OscLock }
+    	STATUS      current
+    	DESCRIPTION
+    	 " TWSTFT Oscillator lock available"
+ ::= { Notifications 3 }  
+ 
+ TwstftOscLock_NotAvailable NOTIFICATION-TYPE
+ 	OBJECTS     { OscLock }
+     	STATUS      current
+     	DESCRIPTION
+     	 " TWSTFT Oscillator lock available"
+ ::= { Notifications 4 }
+ 
+ Twstft_Synced NOTIFICATION-TYPE
+  	OBJECTS     { Sync }
+      	STATUS      current
+      	DESCRIPTION
+      	 " TWSTFT Time unit is in sync"
+ ::= { Notifications 5 }
+ 
+ Twstft_Sync_HoldOver NOTIFICATION-TYPE
+   	OBJECTS     { Sync }
+       	STATUS      current
+       	DESCRIPTION
+       	" TWSTFT Time unit is not in sync"
+ ::= { Notifications 6 }
+ 
+  
+ TwstftLinkTransmit_On NOTIFICATION-TYPE
+      	OBJECTS     { LinkTransmit }
+        STATUS      current
+        DESCRIPTION
+          " TWSTFT Link Transmission is ON"
+ ::= { Notifications 7 }
+ 
+ TwstftLinkTransmit_Off NOTIFICATION-TYPE
+       	 OBJECTS     { LinkTransmit }
+         STATUS      current
+         DESCRIPTION
+           " TWSTFT Link Transmission is Off"
+ ::= { Notifications 8 }
+ 
+ TwstftAntenna_Connected NOTIFICATION-TYPE
+       	OBJECTS     { Antenna }
+       	STATUS      current
+        DESCRIPTION
+            " TWSTFT Antenna is connected"
+ ::= { Notifications 9 }
+ 
+ TwstftAntenna_DisConnected NOTIFICATION-TYPE
+         OBJECTS     { Antenna }
+         STATUS      current
+         DESCRIPTION
+             " TWSTFT Antenna is disconnected"
+ ::= { Notifications 10 }
+ 
+ 
+ 
+ TwstftColdStart NOTIFICATION-TYPE
+          OBJECTS     { Power ON }
+          STATUS      current
+          DESCRIPTION
+            " TWSTFT Modem is turned ON"
+ ::= { Notifications 11 }
+ 
+ 
+ TwstftReset NOTIFICATION-TYPE
+           OBJECTS     { Reset }
+           STATUS      current
+           DESCRIPTION
+             " TWSTFT Modem Reset"
+ ::= { Notifications 12 }
+ 
+-- Twstft_Not_Synced NOTIFICATION-TYPE
+--            OBJECTS     { Sync }
+--            STATUS      current
+--            DESCRIPTION
+--              " TWSTFT is not synchronized"
+-- ::= { Notifications 13 }
+ 
+-- Twstft_Freq_Correction_Applied NOTIFICATION-TYPE
+--             OBJECTS     { Freq Correction }
+--             STATUS      current
+--             DESCRIPTION
+--               " TWSTFT Frequency Correction applied"
+-- ::= { Notifications 14 }
+ 
+
+
+
+END
+
+
+
+
+
