@@ -1,2 +1,0 @@
-MIB table for T5640 is exactly the same as for T3610. 
-You can use MIB table for T5540 from MIB table package ( https://www.cometsystem.cz/produkty/mib-tabulky/reg-mib ).
